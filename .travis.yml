@@ -18,4 +18,4 @@ script:
   - cd amalgam
   - TERM=dumb ./gradlew build test jacocoTestReport
 after_success:
-- ./gradlew coveralls
+- ./gradlew -p Amalgam -b Amalgam/coverage.gradle coveralls
