@@ -2,10 +2,6 @@ language: android
 env:
   matrix:
     - ANDROID_SDKS=android-18,sysimg-18  ANDROID_TARGET=android-18  ANDROID_ABI=armeabi-v7a
-branches:
-  only:
-    - master
-    - develop
 android:
   components:
     - tools
