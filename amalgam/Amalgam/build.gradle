@@ -1,6 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'robolectric'
 apply plugin: "jacoco"
+apply plugin: "coveralls"
 
 buildscript {
     repositories {
@@ -8,6 +9,7 @@ buildscript {
     }
     dependencies {
         classpath 'org.robolectric:robolectric-gradle-plugin:0.12.+'
+        classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:0.4.0'
     }
 }
 
@@ -42,6 +44,7 @@ robolectric {
 
 
 // for coverage
+coveralls.jacocoReportPath = 'build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml'
 jacoco {
     version = '0.7.2.201409121644'
 }

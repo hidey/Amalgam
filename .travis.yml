@@ -20,4 +20,6 @@ android:
     - extra-android-m2repository
 script:
   - cd amalgam
-  - TERM=dumb ./gradlew build test
+  - TERM=dumb ./gradlew build test jacocoTestReport
+after_success:
+- ./gradlew -p Amalgam coveralls
