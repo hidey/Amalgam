@@ -1,5 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'robolectric'
+apply plugin: "jacoco"
 
 buildscript {
     repositories {
@@ -30,13 +31,59 @@ dependencies {
     androidTestCompile('org.robolectric:robolectric:2.3+') {
         exclude group: 'com.android.support', module: 'support-v4'
     }
-    androidTestCompile ('com.squareup:fest-android:1.0.8+'){
+    androidTestCompile('com.squareup:fest-android:1.0.8+') {
         exclude group: 'com.android.support', module: 'support-v4'
     }
 }
 
 robolectric {
     maxHeapSize = "2048m"
+}
+
+
+// for coverage
+jacoco {
+    version = '0.7.2.201409121644'
+}
+
+def coverageSourceDirs = [  
+    android.sourceSets.main.java.srcDirs,
+    'src/gen'
+]
+
+task jacocoTestReport(type: JacocoReport, dependsOn: "testDebug") {  
+    group = "Reporting"
+    description = "Generate Jacoco coverage reports after running tests."
+    reports {
+        xml.enabled = true // coveralls plugin depends on xml format report
+        html.enabled = true
+    }
+    // class R is used, but usage will not be covered, so ignore this class from report
+    // This differs per plugin version (0.10 -> 0.11) 
+    // have very different fileTrees.
+    // I have added rules to Ignore Dagger/Butterknife
+    classDirectories = fileTree(
+            dir: './build/intermediates/classes/debug',
+            excludes: ['com/amalgam//R*.class',
+                       '**/*$InjectAdapter.class',
+                       '**/*$ModuleAdapter.class',
+                       '**/*$ViewInjector*.class'
+            ])
+    sourceDirectories = files(coverageSourceDirs)
+    executionData = files('build/jacoco/testDebug.exec')
+    // Bit hacky but fixes https://code.google.com/p/android/issues/detail?id=69174.
+    // We iterate through the compiled .class tree and rename $$ to $. 
+    doFirst {
+        new File('Amalgam/build/intermediates/classes/').eachFileRecurse { file ->
+            if (file.name.contains('$$')) {
+                file.renameTo(file.path.replace('$$', '$'))
+            }
+        }
+    }
+    afterEvaluate {
+        // just clean up coveralls dashboard, following reports are not of interest
+        testDebug.reports.junitXml.enabled = false
+    }
 }
 
 apply from: 'https://raw.github.com/chrisbanes/gradle-mvn-push/master/gradle-mvn-push.gradle'
